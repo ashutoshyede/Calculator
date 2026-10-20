@@ -1,59 +1,262 @@
-<!DOCTYPE html>
-<html lang="en">
+:root {
+    --bg: #dfe5df;
+    --body: #f3f6f2;
+    --edge: #c3ccc3;
+    --screen: #1d2b2a;
+    --screen-text: #e9f5ee;
+    --screen-dim: #8fa8a0;
+    --key: #ffffff;
+    --key-text: #1d2b2a;
+    --key-shadow: #bcc6bd;
+    --op: #d5e6e0;
+    --op-shadow: #a9c3ba;
+    --accent: #2f4fd8;
+    --accent-shadow: #1f3699;
+    --accent-text: #ffffff;
+    --danger: #ff9b8a;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    color-scheme: light;
+}
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Calculator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=DM+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #111817;
+        --body: #1a2423;
+        --edge: #2b3837;
+        --screen: #0c1211;
+        --screen-text: #e9f5ee;
+        --screen-dim: #6f8a82;
+        --key: #26332f;
+        --key-text: #e9f5ee;
+        --key-shadow: #0e1514;
+        --op: #34504a;
+        --op-shadow: #1b2d29;
+        --accent: #5b78ff;
+        --accent-shadow: #2a3da8;
+        color-scheme: dark;
+    }
+}
 
-<body>
-    <div class="wrap">
-        <div class="top"><button id="theme" aria-label="Switch theme" title="Switch theme">◐</button></div>
-        <div class="calc">
-            <div class="screen" aria-live="polite">
-                <div class="expr" id="expr"></div>
-                <div class="value" id="value">0</div>
-            </div>
-            <div class="keys" id="keys">
-                <button data-a="clear">C</button>
-                <button data-a="back" aria-label="Backspace">⌫</button>
-                <button data-a="percent">%</button>
-                <button class="op" data-a="op" data-v="/">÷</button>
+:root[data-theme="dark"] {
+    --bg: #111817;
+    --body: #1a2423;
+    --edge: #2b3837;
+    --screen: #0c1211;
+    --screen-text: #e9f5ee;
+    --screen-dim: #6f8a82;
+    --key: #26332f;
+    --key-text: #e9f5ee;
+    --key-shadow: #0e1514;
+    --op: #34504a;
+    --op-shadow: #1b2d29;
+    --accent: #5b78ff;
+    --accent-shadow: #2a3da8;
+    color-scheme: dark;
+}
 
-                <button data-a="num" data-v="7">7</button>
-                <button data-a="num" data-v="8">8</button>
-                <button data-a="num" data-v="9">9</button>
-                <button class="op" data-a="op" data-v="*">×</button>
+html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+}
 
-                <button data-a="num" data-v="4">4</button>
-                <button data-a="num" data-v="5">5</button>
-                <button data-a="num" data-v="6">6</button>
-                <button class="op" data-a="op" data-v="-">−</button>
+* {
+    box-sizing: border-box;
+}
 
-                <button data-a="num" data-v="1">1</button>
-                <button data-a="num" data-v="2">2</button>
-                <button data-a="num" data-v="3">3</button>
-                <button class="op" data-a="op" data-v="+">+</button>
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
 
-                <button class="zero" data-a="num" data-v="0">0</button>
-                <button data-a="dot">.</button>
-                <button class="eq" data-a="eq">=</button>
-            </div>
-            <div class="hist">
-                <div class="hist-head"><span>History</span><button id="clearHist">Clear history</button></div>
-                <ul id="hist"></ul>
-            </div>
-        </div>
-    </div>
+.wrap {
+    width: 100%;
+    max-width: 360px;
+}
 
-    <script src="script.js"></script>
-</body>
+.calc {
+    background: var(--body);
+    border: 2px solid var(--edge);
+    border-radius: 28px;
+    padding: 18px;
+}
 
-</html>
+.screen {
+    background: var(--screen);
+    border-radius: 16px;
+    padding: 14px 16px;
+    min-height: 112px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    overflow: hidden;
+}
+
+.expr {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 14px;
+    color: var(--screen-dim);
+    min-height: 20px;
+}
+
+.value {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 44px;
+    color: var(--screen-text);
+    line-height: 1.1;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.value.err {
+    font-size: 18px;
+    color: var(--danger);
+    white-space: normal;
+    text-align: right;
+}
+
+.keys {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 16px;
+}
+
+button {
+    font: inherit;
+    font-size: 22px;
+    font-weight: 700;
+    height: 60px;
+    border: 0;
+    border-radius: 14px;
+    cursor: pointer;
+    background: var(--key);
+    color: var(--key-text);
+    box-shadow: 0 4px 0 var(--key-shadow);
+    transition: transform .06s, box-shadow .06s;
+}
+
+button:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--key-shadow);
+}
+
+button:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+button.op {
+    background: var(--op);
+    box-shadow: 0 4px 0 var(--op-shadow);
+}
+
+button.op:active {
+    box-shadow: 0 1px 0 var(--op-shadow);
+}
+
+button.op.on {
+    outline: 3px solid var(--accent);
+    outline-offset: -3px;
+}
+
+button.eq {
+    background: var(--accent);
+    color: var(--accent-text);
+    box-shadow: 0 4px 0 var(--accent-shadow);
+}
+
+button.eq:active {
+    box-shadow: 0 1px 0 var(--accent-shadow);
+}
+
+button.zero {
+    grid-column: span 2;
+}
+
+.hist {
+    margin-top: 18px;
+    padding: 0 4px;
+}
+
+.hist-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--screen-dim);
+    font-size: 14px;
+}
+
+.hist-head button {
+    height: auto;
+    font-size: 13px;
+    font-weight: 500;
+    background: none;
+    box-shadow: none;
+    color: var(--accent);
+    padding: 4px 6px;
+}
+
+.hist ul {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.hist li {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 14px;
+    color: var(--key-text);
+    padding: 8px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.hist li:hover {
+    background: var(--op);
+}
+
+.hist .empty {
+    color: var(--screen-dim);
+    cursor: default;
+    font-family: inherit;
+}
+
+.hist .empty:hover {
+    background: none;
+}
+
+.top {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.top button {
+    height: 36px;
+    width: 36px;
+    font-size: 16px;
+    border-radius: 10px;
+    box-shadow: none;
+    background: var(--op);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    button {
+        transition: none;
+    }
+}
